@@ -21,6 +21,8 @@ def etl_dcs(date_from:dt.date=None, date_to:dt.date=None):
 
     # Connect to your postgres DB
     conn = psycopg2.connect(
+        host=os.getenv('POSTGRES_HOST'),
+        port=os.getenv('POSTGRES_PORT'),
         dbname=os.getenv('POSTGRES_DBNAME'), 
         user=os.getenv('POSTGRES_USER'), 
         password=os.getenv('POSTGRES_PASSWORD'))

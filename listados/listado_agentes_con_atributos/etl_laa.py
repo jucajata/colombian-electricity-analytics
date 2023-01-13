@@ -20,6 +20,8 @@ def etl_laa(date_from:dt.date=None, date_to:dt.date=None):
 
     # Connect to your postgres DB
     conn = psycopg2.connect(
+        host=os.getenv('POSTGRES_HOST'),
+        port=os.getenv('POSTGRES_PORT'),
         dbname=os.getenv('POSTGRES_DBNAME'), 
         user=os.getenv('POSTGRES_USER'), 
         password=os.getenv('POSTGRES_PASSWORD'))
@@ -72,4 +74,4 @@ def etl_laa(date_from:dt.date=None, date_to:dt.date=None):
     conn.close()
 
 
-etl_laa(date_from=dt.date(2023,1,1), date_to=dt.date(2023,1,7))
+etl_laa(date_from=dt.date(2023,1,1), date_to=dt.date(2023,1,12))
