@@ -68,7 +68,7 @@ def etl_podd(year:int=None):
 
         anio_mes = anio+'-'+mes
         mes_dia = mes+dia
-        url_file = f'/{anio_mes}/PRONSIN{mes_dia}.txt'
+        url_file = f'/{anio_mes}/PRONSIN{mes_dia}.txt'; print(url_file)
 
         # obtención del link para poder descargar la información desde la página de XM de la demanda pronosticada
         url_init = 'https://app-portalxmcore01.azurewebsites.net/administracion-archivos/ficheros/mostrar-url'
@@ -80,7 +80,10 @@ def etl_podd(year:int=None):
 
         # descarga del archivo objetivo
         file = 'demanda_pronosticada.csv'
-        resp = requests.get(link)
+        try:
+            resp = requests.get(link)
+        except: # en caso de que el archivo no exista... continuar
+            continue
         output = open(file, 'wb')
         output.write(resp.content)
         output.close()
@@ -107,6 +110,7 @@ def etl_podd(year:int=None):
         df = df.sort_index()
         df = df.T
         df.columns = columnas_df
+        print(df)
         df_total = pd.concat([df_total, df])
 
     df_total['Values_code'] = 'Sistema'
@@ -211,4 +215,4 @@ def etl_podd(year:int=None):
 
     conn.close()
 
-etl_podd(year=2022)
+etl_podd(year=2023)
