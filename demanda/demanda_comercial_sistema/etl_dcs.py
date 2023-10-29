@@ -4,12 +4,15 @@ import datetime as dt
 import psycopg2
 import os
 from dotenv import load_dotenv
+import warnings
+import numpy as np
+warnings.filterwarnings("ignore")
 
 #objetoAPI = pydataxm.ReadDB()
 #df = objetoAPI.get_collections('DemaCome')
 #print(df.to_dict())
 
-def etl_dcs(date_from:dt.date=None, date_to:dt.date=None):
+def etl_demanda_comercial(date_from:dt.date=None, date_to:dt.date=None):
 
     if date_from is None or date_to is None:
         date_from = dt.date(2022,12,30)
@@ -34,9 +37,12 @@ def etl_dcs(date_from:dt.date=None, date_to:dt.date=None):
 
     df = objetoAPI.request_data(
         'DemaCome',
-        'Sistema',
+        'MercadoComercializacion',
         date_from,
         date_to)
+    
+    df = df.replace(np.nan, None)
+    print(df)
 
     for row in df.index:
         fecha = df['Date'].loc[row]
@@ -66,7 +72,7 @@ def etl_dcs(date_from:dt.date=None, date_to:dt.date=None):
         values_hour23 = df['Values_Hour23'].loc[row]
         values_hour24 = df['Values_Hour24'].loc[row]
 
-        sql = '''INSERT INTO demanda_comercial_sistema
+        sql = '''INSERT INTO xm.demanda_comercial
                (fecha,
                 values_code, 
                 values_hour01,
@@ -126,7 +132,7 @@ def etl_dcs(date_from:dt.date=None, date_to:dt.date=None):
                 values_hour24) 
         
         try:  # identificamos si ya existe en la bd
-            cur.execute(f"SELECT * FROM demanda_comercial_sistema WHERE fecha='{fecha}';")
+            cur.execute(f"SELECT * FROM xm.demanda_comercial WHERE fecha='{fecha}' AND values_code='{values_code}';")
             r = len(cur.fetchall())
             if r == 0:
                 cur.execute(sql, val)
@@ -136,4 +142,12 @@ def etl_dcs(date_from:dt.date=None, date_to:dt.date=None):
 
     conn.close()
 
-etl_dcs(date_from=dt.date(2022,1,1), date_to=dt.date(2022,12,31))
+#for year in range(2023, 2024):
+#    print(f'Cargando año {year}')
+#    etl_dcs(date_from=dt.date(year,1,1), date_to=dt.date(year,12,31))
+
+etl_demanda_comercial(date_from=dt.date(2023,10,26), date_to=dt.date(2023,12,31))
+
+#objetoAPI = pydataxm.ReadDB()
+#df = objetoAPI.get_collections("DemaCome") # El método get_collection con argumentos retorna los cruces de las varibles que se quieren consultar
+#print(df[['MetricId', 'MetricName', 'Entity']])
